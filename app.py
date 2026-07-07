@@ -57,27 +57,27 @@ if uploaded_template and uploaded_csv:
                 reco_str = "Objectifs non atteints. Recommandation : Mise en place d'un plan de relance commercial, analyse des freins à la conversion et accompagnement ciblé."
                 analyse_ia = "Les résultats sont en deçà des attentes. Un ajustement stratégique est requis pour redresser la barre au prochain trimestre."
 
-    # Parcours de toutes les slides et de toutes les formes textuelles
-    for slide in prs.slides:
-        for shape in slide.shapes:
-            if shape.has_text_frame:
-                for paragraph in shape.text_frame.paragraphs:
-                    for run in paragraph.runs:
-                        
-                        # REMPLACEMENT DYNAMIQUE DES ANCIENNES ET NOUVELLES BALISES
-                        if "{{NOM_CLIENT}}" in run.text:
-                            run.text = run.text.replace("{{NOM_CLIENT}}", str(row['Client']))
-                        if "{{CHIFFRE_AFFAIRES}}" in run.text:
-                            run.text = run.text.replace("{{CHIFFRE_AFFAIRES}}", f"{ca:,.0f} €")
-                        if "{{OBJECTIF}}" in run.text:
-                            run.text = run.text.replace("{{OBJECTIF}}", f"{objectif:,.0f} €")
-                        if "{{TAUX_REUSSITE}}" in run.text:
-                            run.text = run.text.replace("{{TAUX_REUSSITE}}", taux_str)
-                        if "{{ANALYSE_IA}}" in run.text:
-                            run.text = run.text.replace("{{ANALYSE_IA}}", analyse_ia)
-                        if "{{RECOMMANDATION_STRATEGIQUE}}" in run.text:
-                            run.text = run.text.replace("{{RECOMMANDATION_STRATEGIQUE}}", reco_str)
-        
+            # Parcours de toutes les slides et de toutes les formes textuelles
+            for slide in prs.slides:
+                for shape in slide.shapes:
+                    if shape.has_text_frame:
+                        for paragraph in shape.text_frame.paragraphs:
+                            for run in paragraph.runs:
+
+                                # REMPLACEMENT DYNAMIQUE DES ANCIENNES ET NOUVELLES BALISES
+                                if "{{NOM_CLIENT}}" in run.text:
+                                    run.text = run.text.replace("{{NOM_CLIENT}}", str(row['Client']))
+                                if "{{CHIFFRE_AFFAIRES}}" in run.text:
+                                    run.text = run.text.replace("{{CHIFFRE_AFFAIRES}}", f"{ca:,.0f} €")
+                                if "{{OBJECTIF}}" in run.text:
+                                    run.text = run.text.replace("{{OBJECTIF}}", f"{objectif:,.0f} €")
+                                if "{{TAUX_REUSSITE}}" in run.text:
+                                    run.text = run.text.replace("{{TAUX_REUSSITE}}", taux_str)
+                                if "{{ANALYSE_IA}}" in run.text:
+                                   run.text = run.text.replace("{{ANALYSE_IA}}", analyse_ia)
+                                if "{{RECOMMANDATION_STRATEGIQUE}}" in run.text:
+                                    run.text = run.text.replace("{{RECOMMANDATION_STRATEGIQUE}}", reco_str)
+
         # 4. DISPOSITIF DE TÉLÉCHARGEMENT DU RÉSULTAT
         st.success("Tous les rapports ont été générés avec succès !")
         
