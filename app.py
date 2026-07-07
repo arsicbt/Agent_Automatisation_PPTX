@@ -27,7 +27,7 @@ if uploaded_template and uploaded_csv:
     if st.button("Lancer la génération des rapports"):
         
         # Lecture du tableau CSV en forçant le séparateur virgule
-        df = pd.read_csv(uploaded_csv, sep=",")
+        df = pd.read_csv(uploaded_csv, sep=";")
         
         # Création d'un dossier ZIP virtuel en mémoire pour stocker tous les PPTX
         zip_buffer = io.BytesIO()
