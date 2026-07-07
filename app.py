@@ -36,34 +36,47 @@ if uploaded_template and uploaded_csv:
             
             # La Boucle : On traite le tableau ligne par ligne
             for index, row in df.iterrows():
-                
-                # On recharge une copie propre du template depuis la mémoire à chaque ligne
+    
+                # On recharge une copie propre du template depuis la mémoire
                 template_bytes = uploaded_template.getvalue()
                 prs = Presentation(io.BytesIO(template_bytes))
-                
-                # Parcours de toutes les slides et de toutes les formes textuelles
-                for slide in prs.slides:
-                    for shape in slide.shapes:
-                        if shape.has_text_frame:
-                            for paragraph in shape.text_frame.paragraphs:
-                                for run in paragraph.runs:
-                                    
-                                    # REMPLACEMENT DYNAMIQUE DES BALISES
-                                    if "{{NOM_CLIENT}}" in run.text:
-                                        run.text = run.text.replace("{{NOM_CLIENT}}", str(row['Client']))
-                                    if "{{CHIFFRE_AFFAIRES}}" in run.text:
-                                        run.text = run.text.replace("{{CHIFFRE_AFFAIRES}}", f"{row['CA']:,} €")
-                                    if "{{OBJECTIF}}" in run.text:
-                                        run.text = run.text.replace("{{OBJECTIF}}", f"{row['Objectif']:,} €")
-                
-                # Sauvegarde du fichier PowerPoint individuel en mémoire
-                pptx_buffer = io.BytesIO()
-                prs.save(pptx_buffer)
-                pptx_buffer.seek(0)
-                
-                # Ajout du PowerPoint dans le fichier ZIP final
-                nom_fichier = f"Rapport_{str(row['Client'])}.pptx".replace(" ", "_")
-                zip_file.writestr(nom_fichier, pptx_buffer.getvalue())
+    
+            # --- CALCULS EN PYTHON ---
+            ca = float(row['CA'])
+            objectif = float(row['Objectif'])
+    
+            # 1. Calcul du taux de réussite
+            taux_calculé = (ca / objectif) * 100
+            taux_str = f"{taux_calculé:.1f} %"
+    
+            # 2. Logique pour la recommandation stratégique
+            if taux_calculé >= 100:
+                reco_str = "Objectifs atteints. Recommandation : Stratégie de fidélisation, développement de nouveaux comptes et phase d'up-selling."
+                analyse_ia = "Excellente performance sur la période. La dynamique commerciale est solide et dépasse les prévisions."
+            else:
+                reco_str = "Objectifs non atteints. Recommandation : Mise en place d'un plan de relance commercial, analyse des freins à la conversion et accompagnement ciblé."
+                analyse_ia = "Les résultats sont en deçà des attentes. Un ajustement stratégique est requis pour redresser la barre au prochain trimestre."
+
+    # Parcours de toutes les slides et de toutes les formes textuelles
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if shape.has_text_frame:
+                for paragraph in shape.text_frame.paragraphs:
+                    for run in paragraph.runs:
+                        
+                        # REMPLACEMENT DYNAMIQUE DES ANCIENNES ET NOUVELLES BALISES
+                        if "{{NOM_CLIENT}}" in run.text:
+                            run.text = run.text.replace("{{NOM_CLIENT}}", str(row['Client']))
+                        if "{{CHIFFRE_AFFAIRES}}" in run.text:
+                            run.text = run.text.replace("{{CHIFFRE_AFFAIRES}}", f"{ca:,.0f} €")
+                        if "{{OBJECTIF}}" in run.text:
+                            run.text = run.text.replace("{{OBJECTIF}}", f"{objectif:,.0f} €")
+                        if "{{TAUX_REUSSITE}}" in run.text:
+                            run.text = run.text.replace("{{TAUX_REUSSITE}}", taux_str)
+                        if "{{ANALYSE_IA}}" in run.text:
+                            run.text = run.text.replace("{{ANALYSE_IA}}", analyse_ia)
+                        if "{{RECOMMANDATION_STRATEGIQUE}}" in run.text:
+                            run.text = run.text.replace("{{RECOMMANDATION_STRATEGIQUE}}", reco_str)
         
         # 4. DISPOSITIF DE TÉLÉCHARGEMENT DU RÉSULTAT
         st.success("Tous les rapports ont été générés avec succès !")
